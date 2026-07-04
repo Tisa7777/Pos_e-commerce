@@ -1,0 +1,640 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8faf9;
+  --foreground: #0c1712;
+  --muted: #5c6b66;
+  --card: rgba(255, 255, 255, 0.96);
+  --border: rgba(15, 30, 26, 0.08);
+  --primary: #0d9488;
+  --primary-foreground: #f0fdfa;
+  --secondary: #0c1712;
+  --secondary-foreground: #f0fdfa;
+  --accent: #f59e0b;
+  --accent-foreground: #1a1505;
+  --danger: #ef4444;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --info: #3b82f6;
+  --glow-primary: rgba(13, 148, 136, 0.2);
+  --glow-accent: rgba(245, 158, 11, 0.15);
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 24px -20px rgba(15, 23, 42, 0.28);
+  --shadow-elevated: 0 8px 18px -14px rgba(15, 23, 42, 0.32), 0 18px 42px -28px rgba(15, 23, 42, 0.36);
+  --shadow-glow: 0 0 0 1px rgba(13, 148, 136, 0.1), 0 10px 28px -20px rgba(13, 148, 136, 0.32);
+  --shadow-glow-accent: 0 0 0 1px rgba(245, 158, 11, 0.1), 0 10px 28px -20px rgba(245, 158, 11, 0.26);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --font-sans: var(--font-dm-sans);
+  --font-mono: var(--font-plex-mono);
+  --font-serif: var(--font-fraunces);
+  --radius-card: 0.75rem;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Premium animations ───────────────────── */
+
+@keyframes pos-item-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pos-toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pos-step-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pos-receipt-fade {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pos-drawer-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes bounce-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
+/* ─── Interactive elements – premium transitions ───────────── */
+
+a,
+button,
+input,
+select,
+textarea {
+  transition:
+    color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::selection {
+  background: rgba(13, 148, 136, 0.20);
+  color: #042f2e;
+}
+
+/* ─── Surface / Glass styles ───────────────── */
+
+.surface {
+  background: var(--card);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.glass-dark {
+  background: rgba(12, 23, 18, 0.72);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ─── Panel grid pattern ──────────────────── */
+
+.panel-grid {
+  background-image:
+    linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* ─── Animated gradient text ──────────────── */
+
+.text-gradient {
+  background: linear-gradient(135deg, #0d9488 0%, #0ea5e9 50%, #0d9488 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 4s ease infinite;
+}
+
+/* ─── Premium card hover glow ─────────────── */
+
+.card-hover-glow {
+  position: relative;
+}
+
+.card-hover-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(13, 148, 136, 0.2), rgba(14, 165, 233, 0.1), transparent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 350ms ease;
+  pointer-events: none;
+}
+
+.card-hover-glow:hover::before {
+  opacity: 1;
+}
+
+/* ─── Staggered animation helper ──────────── */
+
+.animate-in {
+  animation: fade-in-up 500ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 400ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 400ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.delay-1 { animation-delay: 80ms; }
+.delay-2 { animation-delay: 160ms; }
+.delay-3 { animation-delay: 240ms; }
+.delay-4 { animation-delay: 320ms; }
+.delay-5 { animation-delay: 400ms; }
+.delay-6 { animation-delay: 480ms; }
+
+/* ─── Bounce on hover helper ──────────── */
+
+.hover-bounce:hover {
+  animation: bounce-subtle 0.6s ease-in-out;
+}
+
+/* ─── Magnetic button effect base ──────────── */
+
+.magnetic {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ─── Enhanced glass variants ──────────── */
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.glass-subtle {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* ─── Shimmer loading effect ──────────────── */
+
+.shimmer {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+/* ─── Focus ring style ────────────────────── */
+
+.focus-ring {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+/* ─── Premium scrollbar ──────────────────── */
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(13, 148, 136, 0.18);
+  border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(13, 148, 136, 0.35);
+}
+
+/* ─── Toast notification animations ──────── */
+
+@keyframes toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(100%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* ─── Print styles — 2 pages: Customer Copy + Store Copy ─ */
+
+@media print {
+  @page {
+    size: auto;
+    margin: 8mm 10mm;
+  }
+
+  /* ── Hide everything on screen ──────── */
+  html, body {
+    background: #fff !important;
+    color: #000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+
+  body:has(#print-receipt-container) > *:not(#print-receipt-container) {
+    display: none !important;
+  }
+
+  header, nav, aside, footer,
+  .print\:hidden,
+  [class*="toast"] {
+    display: none !important;
+  }
+
+  /* ── Show ONLY #print-receipt-container ─ */
+  #print-receipt-container,
+  #print-receipt-container * {
+    visibility: visible !important;
+    color: #000 !important;
+  }
+
+  #print-receipt-container {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  /* ── Each copy = exactly 1 page ──────── */
+  #print-receipt-container .receipt-print-page {
+    display: block !important;
+    position: relative !important;
+    width: 90mm !important;
+    max-width: 90mm !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: #fff !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Remove page-break from the last page so we don't get a blank trailing page */
+  #print-receipt-container .receipt-print-page:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  /* ── Copy label (Customer / Store) ───── */
+  #print-receipt-container .receipt-copy-label {
+    display: block !important;
+    text-align: center !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.16em !important;
+    text-transform: uppercase !important;
+    padding: 2mm 0 3mm !important;
+    margin: 0 !important;
+    border: none !important;
+    color: #000 !important;
+  }
+
+  /* ── Receipt card inside each page ───── */
+  #print-receipt-container .receipt-card {
+    display: block !important;
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 2mm 0 2mm !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* ── Compact typography ──────────────── */
+  #print-receipt-container .receipt-card p,
+  #print-receipt-container .receipt-card span,
+  #print-receipt-container .receipt-card div {
+    font-size: 13px !important;
+    line-height: 1.35 !important;
+    margin: 0 !important;
+  }
+
+  #print-receipt-container .receipt-card .font-mono {
+    font-family: "Courier New", monospace !important;
+    font-size: 13px !important;
+  }
+
+  /* Store name — slightly larger */
+  #print-receipt-container .receipt-card .text-center > .font-mono:first-child,
+  #print-receipt-container .receipt-card .tracking-\[0\.28em\] {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.12em !important;
+  }
+
+  /* TOTAL line */
+  #print-receipt-container .receipt-card .text-lg,
+  #print-receipt-container .receipt-card .text-xl,
+  #print-receipt-container .receipt-card .text-2xl {
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Small labels */
+  #print-receipt-container .receipt-card .text-xs {
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+  }
+
+  #print-receipt-container .receipt-card .text-sm {
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+  }
+
+  /* ── Kill ALL spacing ────────────────── */
+  #print-receipt-container .receipt-card .mt-1,
+  #print-receipt-container .receipt-card .mt-1\.5 {
+    margin-top: 1px !important;
+  }
+
+  #print-receipt-container .receipt-card .mt-2 {
+    margin-top: 2px !important;
+  }
+
+  #print-receipt-container .receipt-card .mt-3,
+  #print-receipt-container .receipt-card .mt-4,
+  #print-receipt-container .receipt-card .mt-5,
+  #print-receipt-container .receipt-card .mt-6 {
+    margin-top: 2px !important;
+  }
+
+  #print-receipt-container .receipt-card .pt-4,
+  #print-receipt-container .receipt-card .pt-5,
+  #print-receipt-container .receipt-card .pt-6 {
+    padding-top: 2px !important;
+  }
+
+  #print-receipt-container .receipt-card .py-4 {
+    padding-top: 1px !important;
+    padding-bottom: 1px !important;
+  }
+
+  #print-receipt-container .receipt-card .p-6,
+  #print-receipt-container .receipt-card .p-8 {
+    padding: 1mm !important;
+  }
+
+  #print-receipt-container .receipt-card .space-y-1 > * + *,
+  #print-receipt-container .receipt-card .space-y-1\.5 > * + * {
+    margin-top: 1px !important;
+  }
+
+  #print-receipt-container .receipt-card .space-y-2 > * + *,
+  #print-receipt-container .receipt-card .space-y-3 > * + *,
+  #print-receipt-container .receipt-card .space-y-4 > * + * {
+    margin-top: 1px !important;
+  }
+
+  #print-receipt-container .receipt-card .gap-2,
+  #print-receipt-container .receipt-card .gap-4 {
+    gap: 1px !important;
+  }
+
+  /* Item indent */
+  #print-receipt-container .receipt-card .pl-6 {
+    padding-left: 4mm !important;
+  }
+
+  /* ── Clean up visuals ────────────────── */
+  #print-receipt-container .receipt-card .rounded-md,
+  #print-receipt-container .receipt-card .rounded-lg,
+  #print-receipt-container .receipt-card .rounded-xl,
+  #print-receipt-container .receipt-card .rounded-2xl,
+  #print-receipt-container .receipt-card .rounded-full,
+  #print-receipt-container .receipt-card .rounded-\[1\.8rem\] {
+    border-radius: 0 !important;
+  }
+
+  #print-receipt-container .receipt-card .shadow-sm,
+  #print-receipt-container .receipt-card .ring-1,
+  #print-receipt-container .receipt-card [class*="shadow"] {
+    box-shadow: none !important;
+  }
+
+  #print-receipt-container .receipt-card .bg-white,
+  #print-receipt-container .receipt-card .bg-teal-50,
+  #print-receipt-container .receipt-card [class*="bg-gradient"],
+  #print-receipt-container .receipt-card [class*="bg-primary"],
+  #print-receipt-container .receipt-card [class*="bg-\["] {
+    background: transparent !important;
+  }
+
+  /* Dashed lines — remove all */
+  #print-receipt-container .receipt-card .border-dashed {
+    border: none !important;
+  }
+
+  /* All text → black */
+  #print-receipt-container .receipt-card [class*="text-slate-"],
+  #print-receipt-container .receipt-card [class*="text-teal-"],
+  #print-receipt-container .receipt-card [class*="text-emerald-"],
+  #print-receipt-container .receipt-card .text-primary,
+  #print-receipt-container .receipt-card .text-muted {
+    color: #000 !important;
+  }
+
+  /* Hide SVG icons in print (they don't print well on thermal) */
+  #print-receipt-container .receipt-card svg {
+    display: none !important;
+  }
+}
+

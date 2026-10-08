@@ -49,7 +49,7 @@ const TESTIMONIALS = [
     avatar: "VY",
   },
   {
-    quote: "Tisa is my go-to spot when I need coffee and a gift in one stop.",
+    quote: "Coffee Shop is my go-to spot when I need coffee and a gift in one stop.",
     author: "Sophea Lin",
     role: "Weekend Guest",
     avatar: "SL",

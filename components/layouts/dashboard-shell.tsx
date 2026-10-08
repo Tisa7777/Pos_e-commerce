@@ -364,7 +364,7 @@ export function DashboardShell({
 
             <Link href={workspaceRoot} className="min-w-0">
               <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-teal-700">
-                Tisa POS
+                Coffee Shop POS
               </p>
               <p className="truncate text-sm font-semibold text-[#0c1712] sm:text-base">
                 {workspaceTitle}

@@ -76,7 +76,7 @@ export function ReceiptCard({
     >
       <div className="space-y-1 text-center">
         <p className="font-mono text-sm font-semibold tracking-[0.28em] text-slate-900">
-          TISA POS
+          COFFEE SHOP POS
         </p>
         <p className="text-sm text-slate-600">Counter Register</p>
         <p className="font-mono text-xs uppercase tracking-[0.16em] text-slate-500">

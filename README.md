@@ -1,4 +1,4 @@
-# Tisa POS Commerce
+# Coffee Shop POS Commerce
 
 A production-style student portfolio project that combines:
 
@@ -36,9 +36,11 @@ The app requires a real backend. Configure either the included plain PostgreSQL 
 
 ## Project Structure
 
-See [architecture.md](/Users/user/Documents/Tisa_Study/E-comerce_pos_system_codex/docs/architecture.md) for the high-level architecture and folder tree.
+See [architecture.md](./docs/architecture.md) for the high-level architecture and folder tree.
 
-See [route-map.md](/Users/user/Documents/Tisa_Study/E-comerce_pos_system_codex/docs/route-map.md) for the route plan with page purpose, UI sections, data needs, and access roles.
+See [route-map.md](./docs/route-map.md) for the route plan with page purpose, UI sections, data needs, and access roles.
+
+See [api.md](./docs/api.md) for the current HTTP endpoint and guidance for connecting another project to the existing database.
 
 ## Run Locally
 
@@ -80,8 +82,8 @@ SESSION_SECRET=replace-with-a-long-random-secret
 ```
 
 3. In pgAdmin Query Tool, run these files in order:
-   - [001_plain_postgres.sql](/Users/user/Documents/Tisa_Study/E-comerce_pos_system_codex/postgres/pgadmin/001_plain_postgres.sql)
-   - [002_seed.sql](/Users/user/Documents/Tisa_Study/E-comerce_pos_system_codex/postgres/pgadmin/002_seed.sql)
+   - [001_plain_postgres.sql](./postgres/pgadmin/001_plain_postgres.sql)
+   - [002_seed.sql](./postgres/pgadmin/002_seed.sql)
 
 4. Start the app:
 
@@ -101,9 +103,9 @@ Seeded PostgreSQL accounts:
 2. Copy your project URL and anon key into `.env.local`.
 3. Add the service role key for admin-side tasks and future server-only tooling.
 4. In Supabase SQL Editor, run the SQL files in this order:
-   - [001_initial_schema.sql](/Users/user/Documents/Tisa_Study/E-comerce_pos_system_codex/supabase/migrations/001_initial_schema.sql)
-   - [001_seed.sql](/Users/user/Documents/Tisa_Study/E-comerce_pos_system_codex/supabase/seeds/001_seed.sql)
-   - [001_rls.sql](/Users/user/Documents/Tisa_Study/E-comerce_pos_system_codex/supabase/policies/001_rls.sql)
+   - [001_initial_schema.sql](./supabase/migrations/001_initial_schema.sql)
+   - [001_seed.sql](./supabase/seeds/001_seed.sql)
+   - [001_rls.sql](./supabase/policies/001_rls.sql)
 5. Create Auth users for `admin@example.com` and `cashier@example.com` if you want the seed role-attachment statements to populate staff roles automatically.
 
 ## Run Migrations

@@ -1,5 +1,5 @@
 -- =========================================================
--- Tisa POS Commerce seed data
+-- Coffee Shop POS Commerce seed data
 -- =========================================================
 
 -- ---------------------------------------------------------
@@ -445,8 +445,8 @@ values
     '66666666-6666-6666-6666-666666666664',
     '33333333-3333-3333-3333-333333333333',
     '44444444-4444-4444-4444-444444444444',
-    'Tisa Travel Tumbler',
-    'tisa-travel-tumbler',
+    'Coffee Shop Travel Tumbler',
+    'coffee-shop-travel-tumbler',
     'Merchandise item for upsells, bundles, and loyalty rewards.',
     'ACC-TMB-004',
     '885100000004',

@@ -26,3 +26,7 @@ export const productStatusSchema = z.object({
   id: uuidLikeSchema("Invalid product selection."),
   isActive: z.boolean(),
 });
+
+export const productDeleteSchema = z.object({
+  id: uuidLikeSchema("Invalid product selection."),
+});

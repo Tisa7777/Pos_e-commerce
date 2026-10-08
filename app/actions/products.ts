@@ -5,11 +5,13 @@ import { revalidatePath } from "next/cache";
 import { requirePermission } from "@/lib/auth/guards";
 import {
   createProduct,
+  deleteProduct,
   setProductActive,
   updateProduct,
   uploadProductImage,
 } from "@/lib/services/products";
 import {
+  productDeleteSchema,
   productSchema,
   productStatusSchema,
   productUpdateSchema,
@@ -21,6 +23,8 @@ function revalidateProductPaths(productSlug?: string) {
   revalidatePath("/admin/products/new");
   revalidatePath("/shop");
   revalidatePath("/pos");
+  revalidatePath("/pos/cart");
+  revalidatePath("/pos/checkout");
 
   if (productSlug) {
     revalidatePath(`/shop/${productSlug}`);
@@ -173,5 +177,21 @@ export async function updateProductStatusFormAction(formData: FormData) {
 
   await setProductActive(parsed.data.id, parsed.data.isActive);
   revalidateProductPaths();
+  redirect("/admin/products");
+}
+
+export async function deleteProductFormAction(formData: FormData) {
+  await requirePermission("products", "/admin/products");
+
+  const parsed = productDeleteSchema.safeParse({
+    id: formData.get("id"),
+  });
+
+  if (!parsed.success) {
+    redirect("/admin/products");
+  }
+
+  const product = await deleteProduct(parsed.data.id);
+  revalidateProductPaths(product.slug);
   redirect("/admin/products");
 }

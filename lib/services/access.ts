@@ -185,6 +185,28 @@ export async function removeRole(role: UserRole) {
     await client.query(`delete from public.role_permissions where role = $1::public.user_role`, [
       role,
     ]);
+
+    // Demote anyone whose ONLY role was this one, otherwise they would be left
+    // with zero roles: they'd land on /shop and disappear from Roles & Access
+    // (which lists staff via `bool_or(role <> 'customer')`), leaving no way to
+    // reassign them from the UI.
+    await client.query(
+      `
+        insert into public.user_roles (profile_id, role)
+        select ur.profile_id, 'customer'::public.user_role
+        from public.user_roles ur
+        where ur.role = $1::public.user_role
+          and not exists (
+            select 1
+            from public.user_roles other
+            where other.profile_id = ur.profile_id
+              and other.role <> $1::public.user_role
+          )
+        on conflict (profile_id, role) do nothing
+      `,
+      [role],
+    );
+
     await client.query(`delete from public.user_roles where role = $1::public.user_role`, [role]);
     await client.query(
       `

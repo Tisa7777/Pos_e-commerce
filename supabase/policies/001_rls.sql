@@ -1,5 +1,5 @@
 -- =========================================================
--- Tisa POS Commerce RLS policies
+-- Coffee Shop POS Commerce RLS policies
 -- =========================================================
 -- Auth/profile sync guidance:
 -- - public.handle_new_user() in the migration mirrors auth.users into public.profiles.
@@ -140,8 +140,8 @@ create policy "Admins manage categories"
 on public.categories
 for all
 to authenticated
-using (public.has_role('admin'))
-with check (public.has_role('admin'));
+using (public.has_role('admin') or public.has_role('clerk'))
+with check (public.has_role('admin') or public.has_role('clerk'));
 
 create policy "Public read active products"
 on public.products
@@ -153,14 +153,14 @@ create policy "Staff read all products"
 on public.products
 for select
 to authenticated
-using (public.has_role('admin') or public.has_role('cashier'));
+using (public.has_role('admin') or public.has_role('cashier') or public.has_role('clerk') or public.has_role('manager'));
 
 create policy "Admins manage products"
 on public.products
 for all
 to authenticated
-using (public.has_role('admin'))
-with check (public.has_role('admin'));
+using (public.has_role('admin') or public.has_role('clerk'))
+with check (public.has_role('admin') or public.has_role('clerk'));
 
 create policy "Public read active product images"
 on public.product_images
@@ -180,20 +180,20 @@ create policy "Staff read all product images"
 on public.product_images
 for select
 to authenticated
-using (public.has_role('admin') or public.has_role('cashier'));
+using (public.has_role('admin') or public.has_role('cashier') or public.has_role('clerk') or public.has_role('manager'));
 
 create policy "Admins manage product images"
 on public.product_images
 for all
 to authenticated
-using (public.has_role('admin'))
-with check (public.has_role('admin'));
+using (public.has_role('admin') or public.has_role('clerk'))
+with check (public.has_role('admin') or public.has_role('clerk'));
 
 create policy "Staff read suppliers"
 on public.suppliers
 for select
 to authenticated
-using (public.has_role('admin') or public.has_role('cashier'));
+using (public.has_role('admin') or public.has_role('cashier') or public.has_role('clerk') or public.has_role('manager'));
 
 create policy "Admins manage suppliers"
 on public.suppliers
@@ -396,14 +396,14 @@ create policy "Staff read inventory movements"
 on public.inventory_movements
 for select
 to authenticated
-using (public.has_role('admin') or public.has_role('cashier'));
+using (public.has_role('admin') or public.has_role('cashier') or public.has_role('clerk') or public.has_role('manager'));
 
 create policy "Admins manage inventory movements"
 on public.inventory_movements
 for all
 to authenticated
-using (public.has_role('admin'))
-with check (public.has_role('admin'));
+using (public.has_role('admin') or public.has_role('clerk'))
+with check (public.has_role('admin') or public.has_role('clerk'));
 
 create policy "Admins read audit logs"
 on public.audit_logs
@@ -438,11 +438,11 @@ for all
 to authenticated
 using (
   bucket_id = 'product-images'
-  and public.has_role('admin')
+  and (public.has_role('admin') or public.has_role('clerk'))
 )
 with check (
   bucket_id = 'product-images'
-  and public.has_role('admin')
+  and (public.has_role('admin') or public.has_role('clerk'))
 );
 
 create policy "Staff manage receipt assets"

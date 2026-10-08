@@ -76,7 +76,7 @@ export function ProductForm({
             <Input
               id="name"
               name="name"
-              placeholder="Tisa Travel Tumbler"
+              placeholder="Coffee Shop Travel Tumbler"
               defaultValue={product?.name}
               required
             />

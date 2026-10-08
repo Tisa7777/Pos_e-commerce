@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PremiumIcon } from "@/components/ui/premium-icon";
+import { printReceiptDocument } from "@/lib/print-receipt";
 import { formatCurrency } from "@/lib/utils";
 
 type OrderData = GuestOrderResult;
@@ -112,12 +113,22 @@ export default function OrderConfirmationPage() {
     );
   }
 
-  const paymentIconName = order.paymentMethod === "qr" ? "qr" : "cash";
-  const paymentLabel = order.paymentMethod === "qr" ? "QR Payment" : "Cash";
+  const paymentIconName =
+    order.deliveryType === "delivery" && order.paymentMethod !== "qr"
+      ? "delivery"
+      : order.paymentMethod === "qr"
+        ? "qr"
+        : "cash";
+  const paymentLabel =
+    order.deliveryType === "delivery" && order.paymentMethod !== "qr"
+      ? "Pay on delivery"
+      : order.paymentMethod === "qr"
+        ? "QR Payment"
+        : "Cash";
   const deliveryIconName = order.deliveryType === "pickup" ? "store" : "delivery";
   const deliveryLabel =
     order.deliveryType === "pickup"
-      ? "Pickup — Tisa Cafe, Phnom Penh"
+      ? "Pickup — Coffee Shop, Phnom Penh"
       : `Delivery — ${order.deliveryAddress || "Address provided"}`;
   const orderNotice =
     order.deliveryType === "pickup"
@@ -307,7 +318,12 @@ function buildOrderReceiptHtml(order: OrderData) {
   }
 
   const methodLabel = order.deliveryType === "delivery" ? "Delivery" : "Pickup";
-  const paymentLabel = order.paymentMethod === "qr" ? "QR" : "Cash";
+  const paymentLabel =
+    order.deliveryType === "delivery" && order.paymentMethod !== "qr"
+      ? "Pay on delivery"
+      : order.paymentMethod === "qr"
+        ? "QR"
+        : "Cash";
 
   return `<!doctype html>
 <html lang="en">
@@ -339,7 +355,7 @@ function buildOrderReceiptHtml(order: OrderData) {
   <body>
     <div class="receipt">
       <div class="brand">
-        <h1>TISA CAFE</h1>
+        <h1>COFFEE SHOP</h1>
         <p>Phnom Penh • Thank you, ${escapeHtml(order.guestName)}</p>
       </div>
       <div class="divider"></div>
@@ -361,30 +377,5 @@ function buildOrderReceiptHtml(order: OrderData) {
 }
 
 function printOrderReceipt(order: OrderData) {
-  const iframe = document.createElement("iframe");
-  iframe.style.position = "fixed";
-  iframe.style.right = "0";
-  iframe.style.bottom = "0";
-  iframe.style.width = "0";
-  iframe.style.height = "0";
-  iframe.style.border = "0";
-  document.body.appendChild(iframe);
-
-  const doc = iframe.contentWindow?.document;
-  if (!doc) {
-    document.body.removeChild(iframe);
-    return;
-  }
-
-  doc.open();
-  doc.write(buildOrderReceiptHtml(order));
-  doc.close();
-
-  window.setTimeout(() => {
-    iframe.contentWindow?.focus();
-    iframe.contentWindow?.print();
-    window.setTimeout(() => {
-      document.body.removeChild(iframe);
-    }, 500);
-  }, 250);
+  printReceiptDocument(buildOrderReceiptHtml(order));
 }

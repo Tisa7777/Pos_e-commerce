@@ -645,10 +645,14 @@ async function placeGuestOrderPostgres(
         Math.round((computedSubtotal - discountAmount + computedTax + computedShipping) * 100) / 100;
 
       // ── Create order ──
+      // `order_number` is intentionally omitted so the column default
+      // (public.generate_order_number(), backed by order_number_seq) assigns it.
+      // Generating it in JS from Math.random() drew from the same 10000-99999
+      // range as the sequence and could collide with the unique index, failing
+      // the whole checkout.
       const orderResult = await client.query<{ id: string; order_number: string }>(
         `
           insert into public.orders (
-            order_number,
             channel,
             profile_id,
             customer_id,
@@ -662,11 +666,10 @@ async function placeGuestOrderPostgres(
             total_amount,
             notes
           )
-          values ($1, 'ecommerce', $2, $3, null, 'pending', $4, $5, $6, $7, $8, $9, $10)
+          values ('ecommerce', $1, $2, null, 'pending', $3, $4, $5, $6, $7, $8, $9)
           returning id, order_number
         `,
         [
-          orderNumber,
           linkedProfileId,
           linkedCustomerId,
           paymentMethod === "cash" ? "pending" : "paid",
@@ -765,7 +768,11 @@ async function placeGuestOrderPostgres(
       // uniq_loyalty_earned_order constraint with `on conflict do nothing`).
       // Awarding here first makes that trigger insert a no-op, so QR/card
       // orders don't hit a duplicate-key error or double-count points.
-      if (linkedCustomerId) {
+      // Cash-on-delivery orders are recorded as `pending`, so they must NOT
+      // earn yet: the award_loyalty_points_on_paid_* triggers grant the points
+      // when staff mark the order paid. Awarding here would hand out points for
+      // an order that may never be paid (and is not reversed on cancel).
+      if (linkedCustomerId && paymentMethod !== "cash") {
         await awardLoyaltyPointsForOrder(client, {
           customerId: linkedCustomerId,
           orderId: createdOrderId,

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requirePermission, requireRoles } from "@/lib/auth/guards";
+import { requireAnyPermission, requirePermission } from "@/lib/auth/guards";
 import {
   addCustomerLoyaltyPoints,
   createCustomer,
@@ -40,7 +40,10 @@ export async function createCustomerAction(input: {
   discountPercent?: number;
   discountExpiresAt?: string | null;
 }): Promise<ActionState<CustomerSummary | null>> {
-  await requireRoles(["admin", "cashier"], "/pos");
+  // Reachable from Admin > Customers and from the POS register, so accept
+  // either permission. A hardcoded ["admin","cashier"] list locked out managers
+  // and any custom role that had been granted the `customers` permission.
+  await requireAnyPermission(["customers", "pos"], "/admin");
 
   const parsed = customerSchema.safeParse(input);
   if (!parsed.success) {

@@ -2,13 +2,15 @@ import { PosWorkspace } from "@/components/pos/pos-workspace";
 import { requirePermission } from "@/lib/auth/guards";
 import { listOrders } from "@/lib/services/orders";
 import { listCustomers, listProducts } from "@/lib/services/products";
+import { getCurrencySettings } from "@/lib/services/currency-settings";
 
 export default async function PosCheckoutPage() {
   const profile = await requirePermission("pos", "/pos");
-  const [products, customers, recentOrders] = await Promise.all([
+  const [products, customers, recentOrders, currencySettings] = await Promise.all([
     listProducts(),
     listCustomers(),
     listOrders({ roles: ["cashier"], channel: "pos", limit: 1 }),
+    getCurrencySettings(),
   ]);
 
   const latestSale = recentOrders[0]
@@ -27,6 +29,8 @@ export default async function PosCheckoutPage() {
       defaultView="checkout"
       lastTransaction={latestSale}
       cashierName={profile.fullName}
+      khrRate={currencySettings.showKhr ? currencySettings.khrRate : 0}
+      taxPercent={currencySettings.taxPercent}
     />
   );
 }

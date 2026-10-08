@@ -25,6 +25,7 @@
 *.pem
 .demo-data/
 /public/uploads/
+.db-backups/
 
 # debug
 npm-debug.log*

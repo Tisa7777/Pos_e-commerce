@@ -484,7 +484,7 @@ export function EmployeesManager({
                     onChange={(event) =>
                       setDraft((current) => ({ ...current, email: event.target.value }))
                     }
-                    placeholder="cashier@tisa.example"
+                    placeholder="cashier@coffee.example"
                     type="email"
                   />
                 </Field>

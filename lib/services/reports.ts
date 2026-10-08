@@ -807,6 +807,7 @@ async function loadAnalyticsOrders(since: Date): Promise<AnalyticsOrderRecord[]>
       cashier_profile_id: string | null;
       cashier_name: string | null;
       notes: string | null;
+      payment_method: PaymentMethod | null;
     }>(
       `
         select
@@ -819,10 +820,18 @@ async function loadAnalyticsOrders(since: Date): Promise<AnalyticsOrderRecord[]>
           o.notes,
           c.full_name as customer_name,
           o.cashier_profile_id,
-          cashier.full_name as cashier_name
+          cashier.full_name as cashier_name,
+          pay.method as payment_method
         from public.orders o
         left join public.customers c on c.id = o.customer_id
         left join public.profiles cashier on cashier.id = o.cashier_profile_id
+        left join lateral (
+          select p.method
+          from public.payments p
+          where p.order_id = o.id
+          order by (p.status = 'paid') desc, p.created_at desc
+          limit 1
+        ) pay on true
         where o.created_at >= $1
           and o.payment_status in ('paid', 'partially_refunded')
           and o.status <> 'cancelled'
@@ -880,7 +889,7 @@ async function loadAnalyticsOrders(since: Date): Promise<AnalyticsOrderRecord[]>
         createdAt: order.created_at,
         totalAmount: metadata?.displayTotal ?? Number(order.total_amount),
         status: order.status,
-        paymentMethod: "cash",
+        paymentMethod: order.payment_method ?? "cash",
         items: itemsByOrderId.get(order.id) ?? [],
       };
     });

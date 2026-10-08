@@ -23,9 +23,9 @@ export function StorefrontHeader({ account }: { account?: StorefrontHeaderAccoun
         <div className="flex items-center gap-3 lg:gap-5">
           <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
             <div className="rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary to-teal-600 px-2.5 py-1.5 sm:px-3 sm:py-2 font-mono text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] sm:tracking-[0.24em] text-white shadow-[0_4px_16px_-4px_rgba(13,148,136,0.5)] transition-all duration-300 group-hover:shadow-[0_8px_24px_-6px_rgba(13,148,136,0.6)] group-hover:scale-105">
-              Tisa
+              Coffee
             </div>
-            <p className="font-serif text-lg sm:text-xl font-semibold text-[#0c1712] hidden sm:block">Tisa Cafe</p>
+            <p className="font-serif text-lg sm:text-xl font-semibold text-[#0c1712] hidden sm:block">Coffee Shop</p>
           </Link>
           <nav className="hidden items-center gap-5 text-sm font-medium text-muted md:flex">
             {STOREFRONT_NAV.map((item) => (

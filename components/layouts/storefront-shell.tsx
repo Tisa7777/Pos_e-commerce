@@ -10,6 +10,7 @@ import { StorefrontFooter } from "@/components/storefront/storefront-footer";
 import { getCurrentProfile } from "@/lib/auth/guards";
 import { getPermissionsForRoles, resolveStaffHome } from "@/lib/auth/permissions";
 import { getCustomerAccountForProfile } from "@/lib/services/customers";
+import { getStoreSettings } from "@/lib/services/currency-settings";
 
 // Pages staff are still allowed to reach on the storefront: the guest-capable
 // purchase flow and the public receipt. This keeps the order -> receipt demo
@@ -41,6 +42,10 @@ export async function StorefrontShell({ children }: PropsWithChildren) {
     }
   }
 
+  // Checkout charges the configured rate, so the cart must display that same
+  // rate instead of a hardcoded 10%.
+  const { taxPercent } = await getStoreSettings();
+
   let account: StorefrontHeaderAccount | null = null;
   if (profile) {
     const customerAccount = await getCustomerAccountForProfile(profile.id).catch(() => null);
@@ -53,7 +58,7 @@ export async function StorefrontShell({ children }: PropsWithChildren) {
 
   return (
     <div className="min-h-screen bg-[#f8faf9] text-slate-800">
-      <GuestCartProvider>
+      <GuestCartProvider taxPercent={taxPercent}>
         <StorefrontHeader account={account} />
         <main>{children}</main>
       </GuestCartProvider>

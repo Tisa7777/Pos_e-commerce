@@ -133,7 +133,7 @@ function orderToPrintPayload(order: OrderDetail): PrintReceiptPayload {
       : 0;
 
   return {
-    storeName: "TISA POS",
+    storeName: "COFFEE SHOP POS",
     storeSubtitle: order.channel === "pos" ? "Counter Register" : "Online Order",
     orderNumber: order.orderNumber,
     createdAt: order.createdAt,

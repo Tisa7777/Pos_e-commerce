@@ -92,8 +92,8 @@ export const DEMO_PRODUCTS: ProductCardData[] = [
     id: "66666666-6666-6666-6666-666666666664",
     category: accessories,
     supplierId: null,
-    name: "Tisa Travel Tumbler",
-    slug: "tisa-travel-tumbler",
+    name: "Coffee Shop Travel Tumbler",
+    slug: "coffee-shop-travel-tumbler",
     description: "Merchandise item for upsells and gift bundles.",
     sku: "ACC-TMB-004",
     barcode: "885100000004",
@@ -102,7 +102,7 @@ export const DEMO_PRODUCTS: ProductCardData[] = [
     stockQuantity: 24,
     lowStockThreshold: 6,
     isActive: true,
-    imageAlt: "Tisa Travel Tumbler",
+    imageAlt: "Coffee Shop Travel Tumbler",
   },
 ];
 

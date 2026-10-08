@@ -48,7 +48,7 @@ export function CheckoutClient({
   coupons?: CheckoutCoupon[];
 }) {
   const router = useRouter();
-  const { items, isHydrated, subtotal, tax, clear } = useGuestCart();
+  const { items, isHydrated, subtotal, tax, taxPercent, clear } = useGuestCart();
 
   const isAuthenticated = Boolean(account);
   const [guestName, setGuestName] = useState(account?.name ?? "");
@@ -78,6 +78,15 @@ export function CheckoutClient({
   const headerDescription = isAuthenticated
     ? "Confirm your phone number and where you want your order. Loyalty points are added to your account."
     : "Fill in your details and confirm your order. Sign in first if you want loyalty points.";
+
+  function handleDeliveryTypeChange(nextDeliveryType: DeliveryType) {
+    setDeliveryType(nextDeliveryType);
+
+    if (nextDeliveryType === "delivery") {
+      setPaymentMethod("cash");
+      setQrConfirmed(false);
+    }
+  }
 
   if (!isHydrated) {
     return (
@@ -146,7 +155,10 @@ export function CheckoutClient({
       return;
     }
 
-    if (paymentMethod === "qr" && !qrConfirmed) {
+    const checkoutPaymentMethod: PaymentMethod =
+      deliveryType === "delivery" ? "cash" : paymentMethod;
+
+    if (checkoutPaymentMethod === "qr" && !qrConfirmed) {
       setError("Please confirm that you have completed the QR payment.");
       return;
     }
@@ -168,7 +180,7 @@ export function CheckoutClient({
         deliveryType,
         deliveryAddress: deliveryAddress || "",
         couponCode: isAuthenticated ? selectedCouponCode.trim() : "",
-        paymentMethod,
+        paymentMethod: checkoutPaymentMethod,
         notes: composedNotes || "",
         items: items.map((item) => ({
           product_id: item.product_id,
@@ -276,7 +288,7 @@ export function CheckoutClient({
                   <span className="text-sm font-medium text-[#0c1712]">{formatCurrency(subtotal)}</span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
-                  <span className="text-sm text-muted">Tax (10%)</span>
+                  <span className="text-sm text-muted">Tax ({taxPercent}%)</span>
                   <span className="text-sm font-medium text-[#0c1712]">{formatCurrency(tax)}</span>
                 </div>
                 {couponDiscount > 0 && selectedCoupon ? (
@@ -398,7 +410,7 @@ export function CheckoutClient({
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => setDeliveryType("pickup")}
+                  onClick={() => handleDeliveryTypeChange("pickup")}
                   className={`flex h-14 items-center justify-center gap-2.5 rounded-2xl border-2 text-sm font-semibold transition-all ${
                     deliveryType === "pickup"
                       ? "border-primary bg-primary/5 text-primary shadow-[0_2px_12px_-4px_rgba(13,148,136,0.2)]"
@@ -410,7 +422,7 @@ export function CheckoutClient({
                 </button>
                 <button
                   type="button"
-                  onClick={() => setDeliveryType("delivery")}
+                  onClick={() => handleDeliveryTypeChange("delivery")}
                   className={`flex h-14 items-center justify-center gap-2.5 rounded-2xl border-2 text-sm font-semibold transition-all ${
                     deliveryType === "delivery"
                       ? "border-primary bg-primary/5 text-primary shadow-[0_2px_12px_-4px_rgba(13,148,136,0.2)]"
@@ -424,7 +436,7 @@ export function CheckoutClient({
               <div className="overflow-hidden rounded-2xl bg-slate-50 transition-all">
                 {deliveryType === "pickup" ? (
                   <div className="px-5 py-4 text-sm text-muted animate-in fade-in">
-                    <p className="font-semibold text-[#0c1712]">Ready at Tisa Cafe, Phnom Penh</p>
+                    <p className="font-semibold text-[#0c1712]">Ready at Coffee Shop, Phnom Penh</p>
                     <p className="mt-1">Estimated time: ~15–20 minutes</p>
                     <p className="mt-2 text-xs font-medium text-primary">
                       Pickup has no delivery charge.
@@ -538,57 +550,75 @@ export function CheckoutClient({
               <CardTitle>Payment Method</CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPaymentMethod("cash");
-                    setQrConfirmed(false);
-                  }}
-                  className={`flex h-14 items-center justify-center gap-2.5 rounded-2xl border-2 text-sm font-semibold transition-all ${
-                    paymentMethod === "cash"
-                      ? "border-primary bg-primary/5 text-primary shadow-[0_2px_12px_-4px_rgba(13,148,136,0.2)]"
-                      : "border-black/[0.06] text-muted hover:border-black/[0.12] hover:bg-black/[0.01]"
-                  }`}
-                >
-                  <PremiumIcon name="cash" className="h-4 w-4" />
-                  Cash
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod("qr")}
-                  className={`flex h-14 items-center justify-center gap-2.5 rounded-2xl border-2 text-sm font-semibold transition-all ${
-                    paymentMethod === "qr"
-                      ? "border-primary bg-primary/5 text-primary shadow-[0_2px_12px_-4px_rgba(13,148,136,0.2)]"
-                      : "border-black/[0.06] text-muted hover:border-black/[0.12] hover:bg-black/[0.01]"
-                  }`}
-                >
-                  <PremiumIcon name="qr" className="h-4 w-4" />
-                  QR Code
-                </button>
-              </div>
-
-              {paymentMethod === "qr" && (
-                <div className="space-y-4 rounded-2xl border border-black/[0.06] bg-[#f8faf9] p-6 animate-in zoom-in-95 duration-200">
-                  <div className="flex justify-center">
-                    <div className="flex h-44 w-44 flex-col items-center justify-center rounded-[1.5rem] bg-white border border-black/[0.06] shadow-sm text-center text-sm text-muted">
-                      <PremiumIcon name="qr" className="h-12 w-12 text-primary" />
-                      <p className="mt-3 font-semibold text-[#0c1712]">Scan to pay</p>
+              {deliveryType === "delivery" ? (
+                <div className="rounded-2xl border-2 border-primary bg-primary/5 px-5 py-4 text-primary shadow-[0_2px_12px_-4px_rgba(13,148,136,0.2)] animate-in fade-in">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-primary/10">
+                      <PremiumIcon name="delivery" className="h-5 w-5" />
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold text-[#0c1712]">Pay on delivery</p>
+                      <p className="mt-1 text-xs text-muted">
+                        Please pay when your order arrives.
+                      </p>
                     </div>
                   </div>
-                  <p className="text-center text-sm text-muted">
-                    Scan and pay <span className="font-mono font-semibold text-primary">{formatCurrency(total)}</span> then check the box below
-                  </p>
-                  <label className="flex items-center justify-center gap-3 rounded-xl border border-black/[0.06] bg-white p-3 text-sm font-medium text-[#0c1712] shadow-sm cursor-pointer hover:border-primary/30 transition-colors">
-                    <input
-                      type="checkbox"
-                      checked={qrConfirmed}
-                      onChange={(e) => setQrConfirmed(e.target.checked)}
-                      className="h-5 w-5 rounded-md border-slate-300 text-primary focus:ring-primary"
-                    />
-                    <span>I have completed the payment</span>
-                  </label>
                 </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPaymentMethod("cash");
+                        setQrConfirmed(false);
+                      }}
+                      className={`flex h-14 items-center justify-center gap-2.5 rounded-2xl border-2 text-sm font-semibold transition-all ${
+                        paymentMethod === "cash"
+                          ? "border-primary bg-primary/5 text-primary shadow-[0_2px_12px_-4px_rgba(13,148,136,0.2)]"
+                          : "border-black/[0.06] text-muted hover:border-black/[0.12] hover:bg-black/[0.01]"
+                      }`}
+                    >
+                      <PremiumIcon name="cash" className="h-4 w-4" />
+                      Cash
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("qr")}
+                      className={`flex h-14 items-center justify-center gap-2.5 rounded-2xl border-2 text-sm font-semibold transition-all ${
+                        paymentMethod === "qr"
+                          ? "border-primary bg-primary/5 text-primary shadow-[0_2px_12px_-4px_rgba(13,148,136,0.2)]"
+                          : "border-black/[0.06] text-muted hover:border-black/[0.12] hover:bg-black/[0.01]"
+                      }`}
+                    >
+                      <PremiumIcon name="qr" className="h-4 w-4" />
+                      QR Code
+                    </button>
+                  </div>
+
+                  {paymentMethod === "qr" && (
+                    <div className="space-y-4 rounded-2xl border border-black/[0.06] bg-[#f8faf9] p-6 animate-in zoom-in-95 duration-200">
+                      <div className="flex justify-center">
+                        <div className="flex h-44 w-44 flex-col items-center justify-center rounded-[1.5rem] bg-white border border-black/[0.06] shadow-sm text-center text-sm text-muted">
+                          <PremiumIcon name="qr" className="h-12 w-12 text-primary" />
+                          <p className="mt-3 font-semibold text-[#0c1712]">Scan to pay</p>
+                        </div>
+                      </div>
+                      <p className="text-center text-sm text-muted">
+                        Scan and pay <span className="font-mono font-semibold text-primary">{formatCurrency(total)}</span> then check the box below
+                      </p>
+                      <label className="flex items-center justify-center gap-3 rounded-xl border border-black/[0.06] bg-white p-3 text-sm font-medium text-[#0c1712] shadow-sm cursor-pointer hover:border-primary/30 transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={qrConfirmed}
+                          onChange={(e) => setQrConfirmed(e.target.checked)}
+                          className="h-5 w-5 rounded-md border-slate-300 text-primary focus:ring-primary"
+                        />
+                        <span>I have completed the payment</span>
+                      </label>
+                    </div>
+                  )}
+                </>
               )}
             </CardContent>
           </Card>

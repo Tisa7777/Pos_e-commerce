@@ -632,7 +632,7 @@ async function recordLoginSuccess(
 ) {
   if (isPostgresConfigured()) {
     await recordPostgresLoginAttempt(email, fingerprint, true, profileId, null);
-    await clearPostgresLoginFailures(email, fingerprint);
+    await clearPostgresLoginFailures(email);
     return;
   }
 
@@ -676,25 +676,22 @@ async function recordPostgresLoginAttempt(
   );
 }
 
-async function clearPostgresLoginFailures(
-  email: string,
-  fingerprint: LoginRequestFingerprint,
-) {
+async function clearPostgresLoginFailures(email: string) {
   const emailHash = hashLoginIdentifier(email);
   if (!emailHash) {
     return;
   }
 
+  // Scoped to this email only. Clearing by ip_hash as well would let one
+  // successful sign-in reset the brute-force counters for every other account
+  // being attacked from the same address.
   await dbQuery(
     `
       delete from public.auth_login_attempts
       where success = false
-        and (
-          email_hash = $1
-          or ($2::text is not null and ip_hash = $2::text)
-        )
+        and email_hash = $1
     `,
-    [emailHash, fingerprint.ipHash],
+    [emailHash],
   );
 }
 

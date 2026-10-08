@@ -999,7 +999,7 @@ export function PosWorkspace({
 
               <div className="receipt-card mt-10 rounded-[2rem] border border-black/[0.04] bg-[#f8faf9] p-8 shadow-sm">
                 <div className="space-y-3 text-center font-mono text-sm text-muted">
-                  <p>TISA POS</p>
+                  <p>COFFEE SHOP POS</p>
                   <p>Counter Register</p>
                 </div>
 

@@ -1,6 +1,6 @@
 # Architecture Summary
 
-Tisa POS Commerce is a single Next.js App Router codebase that serves three experiences:
+Coffee Shop POS Commerce is a single Next.js App Router codebase that serves three experiences:
 
 - `storefront` routes for customers
 - `admin` routes for inventory, catalog, reporting, and operations

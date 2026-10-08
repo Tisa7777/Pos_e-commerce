@@ -26,6 +26,8 @@ interface GuestCartContextValue {
   subtotal: number;
   tax: number;
   total: number;
+  /** Configured store tax rate, so callers can label it correctly. */
+  taxPercent: number;
   addItem: (product: {
     id: string;
     name: string;
@@ -43,11 +45,15 @@ interface GuestCartContextValue {
   clear: () => void;
 }
 
-const TAX_RATE = 0.1;
+/** Fallback only; the real rate comes from store settings via `taxPercent`. */
+const DEFAULT_TAX_PERCENT = 10;
 
 const GuestCartContext = createContext<GuestCartContextValue | null>(null);
 
-export function GuestCartProvider({ children }: PropsWithChildren) {
+export function GuestCartProvider({
+  children,
+  taxPercent = DEFAULT_TAX_PERCENT,
+}: PropsWithChildren<{ taxPercent?: number }>) {
   const [items, setItems] = useState<GuestCartItem[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
 
@@ -87,22 +93,23 @@ export function GuestCartProvider({ children }: PropsWithChildren) {
   const derived = useMemo(() => {
     const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
     const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const tax = Math.round(subtotal * TAX_RATE * 100) / 100;
+    const tax = Math.round(subtotal * (taxPercent / 100) * 100) / 100;
     const total = Math.round((subtotal + tax) * 100) / 100;
     return { cartCount, subtotal, tax, total };
-  }, [items]);
+  }, [items, taxPercent]);
 
   const value = useMemo<GuestCartContextValue>(
     () => ({
       items,
       isHydrated,
       ...derived,
+      taxPercent,
       addItem,
       updateQty,
       removeItem,
       clear,
     }),
-    [items, isHydrated, derived, addItem, updateQty, removeItem, clear],
+    [items, isHydrated, derived, taxPercent, addItem, updateQty, removeItem, clear],
   );
 
   return (

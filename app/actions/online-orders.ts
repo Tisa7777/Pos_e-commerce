@@ -11,9 +11,11 @@ export async function getOnlineOrderCountAction(): Promise<{
   count: number;
   latestOrderNumber: string | null;
 }> {
-  try {
-    await requirePermission("pos", "/pos");
+  // Kept outside the try/catch below: redirect() signals by throwing, so
+  // catching it here would silently swallow the auth redirect.
+  await requirePermission("pos", "/pos");
 
+  try {
     const orders = await listOrders({
       roles: ["cashier"],
       channel: "ecommerce",
@@ -28,7 +30,12 @@ export async function getOnlineOrderCountAction(): Promise<{
       count: pendingOrders.length,
       latestOrderNumber: pendingOrders[0]?.orderNumber ?? null,
     };
-  } catch {
-    return { count: 0, latestOrderNumber: null };
+  } catch (error) {
+    // A real failure must not look like an empty queue, or cashiers stop
+    // getting notified about incoming online orders.
+    console.error("[getOnlineOrderCountAction] error:", error);
+    throw error instanceof Error
+      ? error
+      : new Error("Unable to load pending online orders.");
   }
 }

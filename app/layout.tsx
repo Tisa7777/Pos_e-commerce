@@ -19,7 +19,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tisa Cafe",
+  title: "Coffee Shop",
   description:
     "Fresh coffee, warm bakes, and easy ordering for Phnom Penh customers.",
 };

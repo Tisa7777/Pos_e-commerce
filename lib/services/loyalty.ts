@@ -51,7 +51,7 @@ function mapCoupon(row: RawCouponRow): LoyaltyCoupon {
 
 function generateCouponCode() {
   const random = randomBytes(4).toString("hex").toUpperCase();
-  return `TISA-${random}`;
+  return `COFFEE-${random}`;
 }
 
 /** Lists a customer's loyalty coupons, newest first. */

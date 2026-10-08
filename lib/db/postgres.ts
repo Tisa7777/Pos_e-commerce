@@ -49,7 +49,13 @@ export async function withDbTransaction<T>(
     await client.query("commit");
     return result;
   } catch (error) {
-    await client.query("rollback");
+    // A failing rollback (dead connection, aborted session) must not replace
+    // the original error, which is the one that actually explains the failure.
+    try {
+      await client.query("rollback");
+    } catch (rollbackError) {
+      console.error("[withDbTransaction] rollback failed:", rollbackError);
+    }
     throw error;
   } finally {
     client.release();

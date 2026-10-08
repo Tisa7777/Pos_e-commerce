@@ -126,6 +126,27 @@ export async function requirePermission(permission: string, redirectTo?: string)
   return profile;
 }
 
+/**
+ * Authorizes the current user if they hold ANY of the given permission keys.
+ * Use this for actions reachable from more than one workspace (e.g. creating a
+ * customer from either Admin > Customers or the POS register), so the check
+ * stays driven by the permission matrix instead of a hardcoded role list that
+ * custom roles can never satisfy.
+ */
+export async function requireAnyPermission(
+  allowedPermissions: string[],
+  redirectTo?: string,
+) {
+  const profile = await requireUser(redirectTo);
+
+  const permissions = await getPermissionsForRoles(profile.roles);
+  if (!allowedPermissions.some((permission) => permissions.has(permission))) {
+    redirect(resolveStaffHome(permissions, profile.roles));
+  }
+
+  return profile;
+}
+
 export async function redirectIfAuthenticated(redirectTo?: string) {
   const profile = await getCurrentProfile();
 

@@ -165,7 +165,7 @@ export async function updateCustomer(input: {
             email = $2,
             phone = $3,
             notes = $4,
-            loyalty_points = $5
+            loyalty_points = coalesce($5::integer, loyalty_points)
         where id = $6
       `,
       [
@@ -177,7 +177,9 @@ export async function updateCustomer(input: {
           discountPercent: input.discountPercent,
           discountExpiresAt: input.discountExpiresAt ?? null,
         }),
-        input.loyaltyPoints ?? 0,
+        // Absolute overwrite only when the caller explicitly sends a value.
+        // Passing null keeps points earned since the form was loaded.
+        input.loyaltyPoints ?? null,
         input.id,
       ],
     );

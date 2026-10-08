@@ -8,7 +8,7 @@ import {
 export async function GET() {
   return NextResponse.json({
     ok: true,
-    service: "tisa-pos-commerce",
+    service: "coffee-shop-pos-commerce",
     backendConfigured: isBackendConfigured(),
     postgresConfigured: isPostgresConfigured(),
     supabaseConfigured: isSupabaseConfigured(),

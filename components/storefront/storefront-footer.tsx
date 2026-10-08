@@ -37,9 +37,9 @@ export function StorefrontFooter() {
         <div className="lg:col-span-1">
           <Link href="/" className="flex items-center gap-3 group w-fit">
             <div className="rounded-2xl bg-gradient-to-br from-primary to-teal-600 px-3 py-2 font-mono text-xs font-semibold uppercase tracking-[0.24em] text-white shadow-[0_4px_16px_-4px_rgba(13,148,136,0.5)] transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_8px_24px_-6px_rgba(13,148,136,0.6)]">
-              Tisa
+              Coffee
             </div>
-            <p className="font-serif text-xl font-semibold text-white">Tisa Cafe</p>
+            <p className="font-serif text-xl font-semibold text-white">Coffee Shop</p>
           </Link>
           <p className="mt-5 max-w-sm text-sm leading-7 text-white/55">
             Fresh coffee, warm bakes, and easy pickup for busy Phnom Penh mornings.
@@ -122,7 +122,7 @@ export function StorefrontFooter() {
 
       <div className="relative border-t border-white/[0.06]">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-3 px-6 py-5 text-sm text-white/40 sm:flex-row sm:items-center">
-          <p>© 2026 Tisa POS Commerce · All rights reserved</p>
+          <p>© 2026 Coffee Shop POS Commerce · All rights reserved</p>
           <div className="flex items-center gap-5 text-xs text-white/35">
             <Link href="/login" className="transition-colors hover:text-white/75">
               Log in ↗

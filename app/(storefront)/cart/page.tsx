@@ -16,7 +16,8 @@ import { getProductIconName } from "@/lib/premium-icons";
 import { formatCurrency } from "@/lib/utils";
 
 export default function CartPage() {
-  const { items, isHydrated, subtotal, tax, total, updateQty, removeItem } = useGuestCart();
+  const { items, isHydrated, subtotal, tax, total, taxPercent, updateQty, removeItem } =
+    useGuestCart();
   const [isSignedIn, setIsSignedIn] = useState(false);
 
   useEffect(() => {
@@ -194,7 +195,7 @@ export default function CartPage() {
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-4">
-                    <span className="text-sm text-muted">Tax (10%)</span>
+                    <span className="text-sm text-muted">Tax ({taxPercent}%)</span>
                     <span className="text-sm font-medium text-[#0c1712]">
                       {formatCurrency(tax)}
                     </span>

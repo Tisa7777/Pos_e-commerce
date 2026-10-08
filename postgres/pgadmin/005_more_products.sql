@@ -1,5 +1,5 @@
 -- Extra catalog so the storefront and POS have a fuller menu.
--- Safe to re-run: conflicts on id are ignored.
+-- Safe to re-run: conflicts on product/image ids are handled.
 
 insert into public.products (
   id, category_id, supplier_id, name, slug, description, sku, barcode,
@@ -36,9 +36,38 @@ values
 
   -- Accessories
   ('66666666-6666-6666-6666-666666666671', '33333333-3333-3333-3333-333333333333', null,
-   'Tisa Ceramic Mug', 'tisa-ceramic-mug', 'Branded ceramic mug for at-home brews.', 'ACC-MUG-017', '885100000017', 9.50, 3.50, 40, 8, true),
+   'Coffee Shop Ceramic Mug', 'coffee-shop-ceramic-mug', 'Branded ceramic mug for at-home brews.', 'ACC-MUG-017', '885100000017', 9.50, 3.50, 40, 8, true),
   ('66666666-6666-6666-6666-666666666672', '33333333-3333-3333-3333-333333333333', null,
-   'Tisa Tote Bag', 'tisa-tote-bag', 'Sturdy canvas tote for everyday carry.', 'ACC-TOT-018', '885100000018', 12.00, 4.50, 35, 6, true),
+   'Coffee Shop Tote Bag', 'coffee-shop-tote-bag', 'Sturdy canvas tote for everyday carry.', 'ACC-TOT-018', '885100000018', 12.00, 4.50, 35, 6, true),
   ('66666666-6666-6666-6666-666666666673', '33333333-3333-3333-3333-333333333333', '44444444-4444-4444-4444-444444444444',
    'Drip Coffee Pack 250g', 'drip-coffee-pack-250g', 'House blend roasted beans, ground for drip.', 'ACC-DRP-019', '885100000019', 11.50, 4.00, 50, 10, true)
 on conflict (id) do nothing;
+
+insert into public.product_images (
+  id,
+  product_id,
+  storage_path,
+  public_url,
+  alt_text,
+  sort_order,
+  is_primary
+)
+values
+  ('bbbbbbbb-bbbb-bbbb-bbbb-666666666665', '66666666-6666-6666-6666-666666666665', 'public/products/hot-americano.png', '/products/hot-americano.png', 'Hot Americano', 0, true),
+  ('bbbbbbbb-bbbb-bbbb-bbbb-666666666666', '66666666-6666-6666-6666-666666666666', 'public/products/cappuccino.png', '/products/cappuccino.png', 'Cappuccino', 0, true),
+  ('bbbbbbbb-bbbb-bbbb-bbbb-666666666667', '66666666-6666-6666-6666-666666666667', 'public/products/caramel-macchiato.png', '/products/caramel-macchiato.png', 'Caramel Macchiato', 0, true),
+  ('bbbbbbbb-bbbb-bbbb-bbbb-666666666668', '66666666-6666-6666-6666-666666666668', 'public/products/espresso.png', '/products/espresso.png', 'Espresso', 0, true),
+  ('bbbbbbbb-bbbb-bbbb-bbbb-666666666669', '66666666-6666-6666-6666-666666666669', 'public/products/matcha-latte.png', '/products/matcha-latte.png', 'Matcha Latte', 0, true),
+  ('bbbbbbbb-bbbb-bbbb-bbbb-66666666666a', '66666666-6666-6666-6666-66666666666a', 'public/products/thai-iced-tea.png', '/products/thai-iced-tea.png', 'Thai Iced Tea', 0, true),
+  ('bbbbbbbb-bbbb-bbbb-bbbb-66666666666b', '66666666-6666-6666-6666-66666666666b', 'public/products/iced-lemon-tea.png', '/products/iced-lemon-tea.png', 'Iced Lemon Tea', 0, true),
+  ('bbbbbbbb-bbbb-bbbb-bbbb-66666666666c', '66666666-6666-6666-6666-66666666666c', 'public/products/pain-au-chocolat.png', '/products/pain-au-chocolat.png', 'Pain au Chocolat', 0, true),
+  ('bbbbbbbb-bbbb-bbbb-bbbb-66666666666d', '66666666-6666-6666-6666-66666666666d', 'public/products/blueberry-muffin.png', '/products/blueberry-muffin.png', 'Blueberry Muffin', 0, true),
+  ('bbbbbbbb-bbbb-bbbb-bbbb-66666666666e', '66666666-6666-6666-6666-66666666666e', 'public/products/cheese-danish.png', '/products/cheese-danish.png', 'Cheese Danish', 0, true),
+  ('bbbbbbbb-bbbb-bbbb-bbbb-66666666666f', '66666666-6666-6666-6666-66666666666f', 'public/products/chocolate-chip-cookie.png', '/products/chocolate-chip-cookie.png', 'Chocolate Chip Cookie', 0, true),
+  ('bbbbbbbb-bbbb-bbbb-bbbb-666666666670', '66666666-6666-6666-6666-666666666670', 'public/products/cinnamon-roll.png', '/products/cinnamon-roll.png', 'Cinnamon Roll', 0, true)
+on conflict (id) do update
+set storage_path = excluded.storage_path,
+    public_url = excluded.public_url,
+    alt_text = excluded.alt_text,
+    sort_order = excluded.sort_order,
+    is_primary = excluded.is_primary;

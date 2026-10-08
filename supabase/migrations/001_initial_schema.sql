@@ -1,5 +1,5 @@
 -- =========================================================
--- Tisa POS Commerce
+-- Coffee Shop POS Commerce
 -- Initial schema for a combined POS and ecommerce system.
 -- =========================================================
 
@@ -727,7 +727,7 @@ begin
     end;
   end if;
 
-  if v_requested_role in ('admin', 'cashier') then
+  if v_requested_role in ('admin', 'cashier', 'clerk', 'manager') then
     insert into public.user_roles (profile_id, role)
     values (new.id, v_requested_role)
     on conflict (profile_id, role) do nothing;

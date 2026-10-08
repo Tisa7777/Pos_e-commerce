@@ -6,7 +6,10 @@ import {
 import { dbQuery, withDbTransaction } from "@/lib/db/postgres";
 import { hashPassword } from "@/lib/auth/password";
 import { parsePosReceiptMetadata } from "@/lib/pos/receipt-metadata";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  createSupabaseServerClient,
+  createSupabaseServiceRoleClient,
+} from "@/lib/supabase/server";
 import type { PoolClient } from "pg";
 import type {
   EmployeePayType,
@@ -675,13 +678,145 @@ async function findSupabaseProfileIdByEmail(email: string | null) {
   return data?.id ?? null;
 }
 
-async function syncSupabaseStaffRole(profileId: string | null, role: EmployeeRole) {
+async function ensureSupabaseStaffLoginAccount(input: {
+  email: string | null;
+  fullName: string;
+  phone: string | null;
+  role: EmployeeRole;
+  password: string | null;
+}) {
+  const authRole = employeeRoleToAuthRole(input.role);
+
+  if (!authRole) {
+    return findSupabaseProfileIdByEmail(input.email);
+  }
+
+  if (!input.email) {
+    return null;
+  }
+
+  const normalizedEmail = input.email.trim().toLowerCase();
+  const existingProfileId = await findSupabaseProfileIdByEmail(normalizedEmail);
+  const serviceClient = createSupabaseServiceRoleClient();
+  const userMetadata = {
+    full_name: input.fullName,
+    phone: input.phone,
+    role: authRole,
+  };
+
+  if (existingProfileId) {
+    const { error: authError } = await serviceClient.auth.admin.updateUserById(
+      existingProfileId,
+      {
+        ...(input.password ? { password: input.password } : {}),
+        user_metadata: userMetadata,
+      },
+    );
+
+    if (authError) {
+      throw new Error(authError.message);
+    }
+
+    const { error: profileError } = await serviceClient
+      .from("profiles")
+      .update({
+        email: normalizedEmail,
+        full_name: input.fullName,
+        phone: input.phone,
+      })
+      .eq("id", existingProfileId);
+
+    if (profileError) {
+      throw new Error(profileError.message);
+    }
+
+    return existingProfileId;
+  }
+
+  if (!input.password) {
+    throw new Error("Set a password to create a login for this staff email.");
+  }
+
+  const { data, error } = await serviceClient.auth.admin.createUser({
+    email: normalizedEmail,
+    password: input.password,
+    email_confirm: true,
+    user_metadata: userMetadata,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const profileId = data.user?.id;
+  if (!profileId) {
+    throw new Error("Unable to create staff login.");
+  }
+
+  const { error: profileError } = await serviceClient.from("profiles").upsert(
+    {
+      id: profileId,
+      email: normalizedEmail,
+      full_name: input.fullName,
+      phone: input.phone,
+    },
+    { onConflict: "id" },
+  );
+
+  if (profileError) {
+    throw new Error(profileError.message);
+  }
+
+  return profileId;
+}
+
+async function syncSupabaseStaffRole(
+  profileId: string | null,
+  role: EmployeeRole,
+  previous?: {
+    profileId?: string | null;
+    role?: EmployeeRole | null;
+  },
+) {
   const authRole = employeeRoleToAuthRole(role);
+  const previousAuthRole = previous?.role
+    ? employeeRoleToAuthRole(previous.role)
+    : null;
+  const supabase = createSupabaseServiceRoleClient();
+
+  if (
+    previous?.profileId &&
+    previousAuthRole &&
+    (
+      previous.profileId !== profileId ||
+      previousAuthRole !== authRole
+    )
+  ) {
+    const { error } = await supabase
+      .from("user_roles")
+      .delete()
+      .eq("profile_id", previous.profileId)
+      .eq("role", previousAuthRole);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  }
+
   if (!profileId || !authRole) {
     return;
   }
 
-  const supabase = await createSupabaseServerClient();
+  const { error: customerRoleError } = await supabase
+    .from("user_roles")
+    .delete()
+    .eq("profile_id", profileId)
+    .eq("role", "customer");
+
+  if (customerRoleError) {
+    throw new Error(customerRoleError.message);
+  }
+
   const { error } = await supabase
     .from("user_roles")
     .upsert(
@@ -838,7 +973,13 @@ export async function createEmployee(input: EmployeeInput) {
     requireBackendConfigured("Employee management");
   }
 
-  const profileId = await findSupabaseProfileIdByEmail(employee.email);
+  const profileId = await ensureSupabaseStaffLoginAccount({
+    email: employee.email,
+    fullName: employee.fullName,
+    phone: employee.phone,
+    role: employee.role,
+    password: employee.password,
+  });
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("employees")
@@ -961,7 +1102,18 @@ export async function updateEmployee(input: EmployeeInput & { id: string }) {
     requireBackendConfigured("Employee management");
   }
 
-  const profileId = await findSupabaseProfileIdByEmail(employee.email);
+  const existingEmployee = await getEmployeeById(input.id);
+  if (!existingEmployee) {
+    throw new Error("Employee not found.");
+  }
+
+  const profileId = await ensureSupabaseStaffLoginAccount({
+    email: employee.email,
+    fullName: employee.fullName,
+    phone: employee.phone,
+    role: employee.role,
+    password: employee.password,
+  });
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase
     .from("employees")
@@ -987,7 +1139,10 @@ export async function updateEmployee(input: EmployeeInput & { id: string }) {
 
   throwEmployeeServiceError(error);
 
-  await syncSupabaseStaffRole(profileId, employee.role);
+  await syncSupabaseStaffRole(profileId, employee.role, {
+    profileId: existingEmployee.profileId,
+    role: existingEmployee.role,
+  });
 
   return getEmployeeById(input.id);
 }
@@ -995,7 +1150,56 @@ export async function updateEmployee(input: EmployeeInput & { id: string }) {
 export async function deleteEmployee(id: string) {
   if (isPostgresConfigured()) {
     await ensurePostgresEmployeesTable();
-    await dbQuery("delete from public.employees where id = $1", [id]);
+
+    await withDbTransaction(async (client) => {
+      const { rows } = await client.query<{
+        profile_id: string | null;
+        role: EmployeeRole;
+      }>(
+        `
+          select profile_id, role
+          from public.employees
+          where id = $1
+          for update
+        `,
+        [id],
+      );
+
+      const existing = rows[0];
+
+      // Deleting only the employee row left the person able to sign in with
+      // their staff role, and backfillPostgresStaffEmployees() then re-created
+      // the row on the next read, silently undoing the delete. Revoke the
+      // staff role and their sessions in the same transaction.
+      if (existing?.profile_id) {
+        const authRole = employeeRoleToAuthRole(existing.role);
+
+        if (authRole) {
+          await assertCanRemovePostgresAuthRole(existing.profile_id, authRole, client);
+          await client.query(
+            `
+              delete from public.user_roles
+              where profile_id = $1
+                and role = $2::public.user_role
+            `,
+            [existing.profile_id, authRole],
+          );
+        }
+
+        await client.query(
+          `
+            update public.auth_sessions
+            set revoked_at = timezone('utc', now())
+            where profile_id = $1
+              and revoked_at is null
+          `,
+          [existing.profile_id],
+        );
+      }
+
+      await client.query("delete from public.employees where id = $1", [id]);
+    });
+
     return { id };
   }
 

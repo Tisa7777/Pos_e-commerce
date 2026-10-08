@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { PremiumIcon } from "@/components/ui/premium-icon";
 import { OrderStatusBadge } from "@/components/storefront/order-status-badge";
+import { printReceiptDocument } from "@/lib/print-receipt";
 import { formatCurrency } from "@/lib/utils";
 import type { ActionState, OrderDetail, PublicOrderTracking } from "@/types/domain";
 
@@ -450,7 +451,7 @@ function buildReceiptHtml(receipt: ReceiptInput) {
   <body>
     <div class="receipt">
       <div class="brand">
-        <h1>TISA CAFE</h1>
+        <h1>COFFEE SHOP</h1>
         <p>Phnom Penh • Thank you for your order</p>
       </div>
       <div class="divider"></div>
@@ -480,30 +481,5 @@ function summaryRow(label: string, value: number) {
 }
 
 function printReceipt(receipt: ReceiptInput) {
-  const iframe = document.createElement("iframe");
-  iframe.style.position = "fixed";
-  iframe.style.right = "0";
-  iframe.style.bottom = "0";
-  iframe.style.width = "0";
-  iframe.style.height = "0";
-  iframe.style.border = "0";
-  document.body.appendChild(iframe);
-
-  const doc = iframe.contentWindow?.document;
-  if (!doc) {
-    document.body.removeChild(iframe);
-    return;
-  }
-
-  doc.open();
-  doc.write(buildReceiptHtml(receipt));
-  doc.close();
-
-  window.setTimeout(() => {
-    iframe.contentWindow?.focus();
-    iframe.contentWindow?.print();
-    window.setTimeout(() => {
-      document.body.removeChild(iframe);
-    }, 500);
-  }, 250);
+  printReceiptDocument(buildReceiptHtml(receipt));
 }

@@ -30,10 +30,10 @@ export default function AuthLayout({ children }: PropsWithChildren) {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <Link href="/" className="inline-flex items-center gap-3 group">
                 <div className="rounded-lg bg-white px-3 py-2 font-mono text-xs font-semibold uppercase tracking-[0.24em] text-primary shadow-sm transition-all duration-300 group-hover:scale-105">
-                  Tisa
+                  Coffee
                 </div>
                 <p className="font-serif text-xl font-semibold text-white">
-                  Tisa Cafe
+                  Coffee Shop
                 </p>
               </Link>
               <Link

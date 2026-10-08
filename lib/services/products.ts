@@ -1409,6 +1409,51 @@ export async function setProductActive(productId: string, isActive: boolean) {
   return data;
 }
 
+export async function deleteProduct(productId: string) {
+  if (isPostgresConfigured()) {
+    const { rows } = await dbQuery<{ id: string; slug: string }>(
+      `
+        update public.products
+        set
+          is_active = false,
+          deleted_at = timezone('utc', now())
+        where id = $1
+          and deleted_at is null
+        returning id, slug
+      `,
+      [productId],
+    );
+
+    if (!rows[0]) {
+      throw new Error("Product not found.");
+    }
+
+    return rows[0];
+  }
+
+  if (!isSupabaseConfigured()) {
+    requireBackendConfigured("Product deletion");
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("products")
+    .update({
+      is_active: false,
+      deleted_at: new Date().toISOString(),
+    })
+    .eq("id", productId)
+    .is("deleted_at", null)
+    .select("id, slug")
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
 export async function uploadProductImage(productId: string, file: File) {
   if (isPostgresConfigured()) {
     const storedImage = await saveProductImageLocally(productId, file);

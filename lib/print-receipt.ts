@@ -69,7 +69,7 @@ function paymentLabel(method: string) {
 }
 
 function buildReceiptHtml(data: PrintReceiptPayload, copyLabel: string): string {
-  const storeName = data.storeName ?? "TISA POS";
+  const storeName = data.storeName ?? "COFFEE SHOP POS";
   const storeSubtitle = data.storeSubtitle ?? "Counter Register";
   const showKhr = (data.khrRate ?? 0) > 0;
   const khr = data.khrRate ?? 0;
@@ -216,6 +216,74 @@ function printReceiptContainer(container: HTMLElement) {
       window.setTimeout(cleanup, 60_000);
     });
   });
+}
+
+export function printReceiptDocument(html: string) {
+  const iframe = document.createElement("iframe");
+  iframe.setAttribute(
+    "style",
+    [
+      "position:fixed",
+      "left:-10000px",
+      "top:0",
+      "width:1px",
+      "height:1px",
+      "border:0",
+      "opacity:0",
+      "pointer-events:none",
+    ].join(";"),
+  );
+
+  let cleaned = false;
+  let printed = false;
+  let cleanupTimer: number | undefined;
+  let loadFallbackTimer = 0;
+
+  const cleanup = () => {
+    if (cleaned) {
+      return;
+    }
+
+    cleaned = true;
+    window.clearTimeout(cleanupTimer);
+    window.clearTimeout(loadFallbackTimer);
+    window.removeEventListener("afterprint", cleanup);
+    iframe.contentWindow?.removeEventListener("afterprint", cleanup);
+    iframe.remove();
+  };
+
+  const printFrame = () => {
+    if (printed || cleaned) {
+      return;
+    }
+
+    const frameWindow = iframe.contentWindow;
+    if (!frameWindow) {
+      cleanup();
+      return;
+    }
+
+    printed = true;
+    window.addEventListener("afterprint", cleanup);
+    frameWindow.addEventListener("afterprint", cleanup);
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        frameWindow.focus();
+        frameWindow.print();
+
+        // Keep the iframe alive long enough for slower print/PDF dialogs.
+        cleanupTimer = window.setTimeout(cleanup, 60_000);
+      });
+    });
+  };
+
+  iframe.addEventListener("load", printFrame, { once: true });
+  document.body.appendChild(iframe);
+  iframe.srcdoc = html;
+
+  // Safari and some WebViews can miss iframe load for srcdoc.
+  loadFallbackTimer = window.setTimeout(printFrame, 1_000);
 }
 
 /**

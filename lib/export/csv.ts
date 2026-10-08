@@ -167,7 +167,7 @@ export function exportReportCsv(data: ReportExportData) {
 
   const dateSlug = new Date().toISOString().slice(0, 10);
   const csv = buildCsvString([], rows);
-  triggerCsvDownload(csv, `tisa-sales-report-${dateSlug}.csv`);
+  triggerCsvDownload(csv, `coffee-shop-sales-report-${dateSlug}.csv`);
 }
 
 export function exportReceiptCsv(receipts: Array<{
@@ -217,5 +217,5 @@ export function exportReceiptCsv(receipts: Array<{
 
   const dateSlug = new Date().toISOString().slice(0, 10);
   const csv = buildCsvString(headers, rows);
-  triggerCsvDownload(csv, `tisa-pos-receipts-${dateSlug}.csv`);
+  triggerCsvDownload(csv, `coffee-shop-pos-receipts-${dateSlug}.csv`);
 }
